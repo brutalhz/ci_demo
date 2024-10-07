@@ -33,7 +33,7 @@ jobs:
     environment: 
       name: Staging
       url: 'http://test.myapp.com'
-    needs: [Build]
+    needs: [DeployDev]
     steps:
       - uses: actions/checkout@v3
       - name: Create pull request
