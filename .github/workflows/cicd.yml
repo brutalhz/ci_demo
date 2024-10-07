@@ -26,12 +26,30 @@ jobs:
       url: 'http://dev.myapp.com'
     steps:
       - name: Deploy
-        run: echo I am deploying! 
-    
+        run: echo I am deploying!
+  
+  Create_pr_repo_sync:
+    runs-on: ubuntu-latest
+    environment: 
+      name: Staging
+      url: 'http://test.myapp.com'
+    needs: [Build]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create pull request
+        id: open-pr
+        uses: repo-sync/pull-request@v2
+        with:
+          destination_branch: "release"
+          pr_title: "feat: PLACEHOLDER TITLE"
+          pr_template: ".github/PULL_REQUEST_TEMPLATE.md"
+          pr_reviewer: "paigen11"
+          pr_draft: true
+
   DeployStaging:
     name: Deploy to Staging 
-    if: github.event_name == 'pull_request'
-    needs: [DeployDev]
+    if: github.event.ref == 'refs/heads/main'
+    needs: [Create_pr_repo_sync]
     runs-on: ubuntu-latest
     environment: 
       name: Staging
