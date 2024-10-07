@@ -80,7 +80,7 @@ jobs:
   DeployStaging:
     name: Deploy to Staging 
     if: github.event.ref == 'refs/heads/main'
-    needs: [Create_pr_repo_sync]
+    needs: [createPullRequest]
     runs-on: ubuntu-latest
     environment: 
       name: Staging
