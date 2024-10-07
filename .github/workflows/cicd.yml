@@ -35,16 +35,12 @@ jobs:
       url: 'http://test.myapp.com'
     needs: [DeployDev]
     steps:
-      - uses: actions/checkout@v3
-      - name: Create pull request
-        id: open-pr
-        uses: repo-sync/pull-request@v2
+      - uses: peterjgrainger/action-create-branch@v2.2.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          destination_branch: "release"
-          pr_title: "feat: PLACEHOLDER TITLE"
-          pr_template: ".github/PULL_REQUEST_TEMPLATE.md"
-          pr_reviewer: "paigen11"
-          pr_draft: true
+          branch: 'release-notes'
+          sha: '${{ github.event.pull_request.head.sha }}'
 
   DeployStaging:
     name: Deploy to Staging 
