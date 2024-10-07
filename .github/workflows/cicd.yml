@@ -37,6 +37,9 @@ jobs:
       - name: Make changes to pull request
         run: date +%s > report.txt
 
+      - name: test var github
+        run: echo ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v7
