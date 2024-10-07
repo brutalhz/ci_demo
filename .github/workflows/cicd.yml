@@ -30,6 +30,8 @@ jobs:
 
   createPullRequest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: [DeployDev]
     steps:
       - uses: actions/checkout@v4
