@@ -24,6 +24,8 @@ jobs:
     environment: 
       name: Development
       url: 'http://dev.myapp.com'
+    outputs:
+      IMAGE_TAG: ${{ steps.check-tag.outputs.IMAGE_ID }}
     steps:
       - name: Deploy
         run: echo I am deploying!
@@ -53,9 +55,7 @@ jobs:
 
       - name: test
         run: |
-          echo "output: ${{ steps.check-tag.outputs.IMAGE_ID }}"
-          echo "output: ${{ needs.DeployDev.outputs.check-tag.IMAGE_ID }}"
-          echo "output: ${{ needs.DeployDev.check-tag.outputs.IMAGE_ID }}"
+          echo "output: ${{ needs.extract-versions.outputs.IMAGE_TAG }}"
 
   CreateBranch:
     name: Create Branch
