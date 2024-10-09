@@ -42,6 +42,7 @@ jobs:
              ts=$(date +%Y%m%d-%H.%M | awk -F- '{print $1 "-" sprintf("%02d", ($2 + 3) % 24) "." substr($2, 4)}')
              branch=dev
              echo "::set-output name=IMAGE_ID::${branch}-${GITHUB_SHA::8}-${ts}"
+             echo "IMAGE_ID=${branch}-${GITHUB_SHA::8}-${ts}" >> $GITHUB_ENV
            fi
 
   test:
