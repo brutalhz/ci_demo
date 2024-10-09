@@ -28,6 +28,35 @@ jobs:
       - name: Deploy
         run: echo I am deploying!
 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check Tag
+        id: check-tag
+        run: |
+           if [[ ${{ github.event.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+               echo "::set-output name=IMAGE_ID::${{ github.ref_name }}"
+           else
+             ts=$(date +%Y%m%d-%H.%M | awk -F- '{print $1 "-" sprintf("%02d", ($2 + 3) % 24) "." substr($2, 4)}')
+             branch=dev
+             echo "::set-output name=IMAGE_ID::${branch}-${GITHUB_SHA::8}-${ts}"
+           fi
+
+  test:
+    needs: DeployDev
+    runs-on: ubuntu-latest
+    environment: 
+      name: Development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: test
+        run: |
+          echo "output: ${{ steps.check-tag.outputs.IMAGE_ID }}"
+          echo "output: ${{ needs.DeployDev.outputs.check-tag.IMAGE_ID }}"
+          echo "output: ${{ needs.DeployDev.check-tag.outputs.IMAGE_ID }}"
+
   CreateBranch:
     name: Create Branch
     needs: [DeployDev]
