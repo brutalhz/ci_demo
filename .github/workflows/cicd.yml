@@ -66,6 +66,14 @@ jobs:
            -H "Accept: application/vnd.github.v3+json" \
            -d '{"ref":"refs/heads/release", "sha":"${{ env.COMMIT_SHA }}"}' https://api.github.com/repos/brutalhz/ci_demo/git/refs
 
+      - name: test
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+           https://api.github.com/repos/brutalhz/ci_demo/actions/workflows/release.yml/dispatches \
+          -d '{"ref":"release"}'
+
       - name: Clean up
         run: |
           git checkout main  # Вернуться на основную ветку
