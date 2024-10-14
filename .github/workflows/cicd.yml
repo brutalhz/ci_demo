@@ -1,11 +1,10 @@
 name: CI + CD
 
 on:
-  create:
   push:
-    branches: [ main, release ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, release ]
+    branches: [ main ]
 
 jobs:
   Build:
