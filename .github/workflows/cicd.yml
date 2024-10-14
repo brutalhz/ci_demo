@@ -46,8 +46,6 @@ jobs:
 
   create-release-branch:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -67,13 +65,6 @@ jobs:
           curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
            -H "Accept: application/vnd.github.v3+json" \
            -d '{"ref":"refs/heads/release", "sha":"${{ env.COMMIT_SHA }}"}' https://api.github.com/repos/brutalhz/ci_demo/git/refs
-
-      - name: test
-        run: |
-          echo "tessst111111" > test.${{ env.COMMIT_SHA }}
-          git add test.${{ env.COMMIT_SHA }}
-          git commit -m "tessst ${{ env.COMMIT_SHA }}"
-          git push origin release
 
       - name: Clean up
         run: |
