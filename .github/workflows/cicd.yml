@@ -1,10 +1,11 @@
 name: CI + CD
 
 on:
+  create:
   push:
-    branches: [ main ]
+    branches: [ main, release ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, release ]
 
 jobs:
   Build:
@@ -68,7 +69,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          branch: 'release-notes'
+          branch: 'release'
           sha: '${{ github.event.pull_request.head.sha }}'
 
   # createPullRequest:
