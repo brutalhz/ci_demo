@@ -47,17 +47,27 @@ jobs:
   create-release-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up Git
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@users.noreply.github.com"
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
 
-      - name: Create release branch
+      - name: Get latest commit SHA
+        id: get_sha
         run: |
-          git checkout -b release
-          git push origin release
+          echo "COMMIT_SHA=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Create new branch
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+           -H "Accept: application/vnd.github.v3+json" \
+           -d '{"ref":"refs/heads/release", "sha":"${{ env.COMMIT_SHA }}"}' https://api.github.com/repos/brutalhz/ci_demo/git/refs
+
+      - name: Clean up
+        run: |
+          git checkout main  # Вернуться на основную ветку
 
 
