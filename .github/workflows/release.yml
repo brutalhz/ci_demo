@@ -8,10 +8,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Check if the actor is not github-actions
-        if: github.actor != 'github-actions[bot]'
-        run: echo "This is a manual push, continue with the workflow."
         
       - name: Checkout code
         uses: actions/checkout@v2
