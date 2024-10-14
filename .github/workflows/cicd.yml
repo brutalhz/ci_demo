@@ -46,16 +46,14 @@ jobs:
 
   create-release-branch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Set up Git
         run: |
-          echo "${github.actor}" || true
-          echo "${{ vars.github.actor }}" || true
-          echo "${{ env.github.actor }}" || true
-          echo ${{ secrets.github.actor }} || true
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
