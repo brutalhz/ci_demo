@@ -2,6 +2,7 @@
 name: Release Workflow
 
 on:
+  create
   push:
     branches:
       - release
