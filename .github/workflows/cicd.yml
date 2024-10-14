@@ -73,7 +73,7 @@ jobs:
           echo "tessst111111" > test.${{ env.COMMIT_SHA }}
           git add test.${{ env.COMMIT_SHA }}
           git commit -m "tessst ${{ env.COMMIT_SHA }}"
-          git push origin
+          git push origin release
 
       - name: Clean up
         run: |
