@@ -71,6 +71,10 @@ jobs:
         with:
           branch: 'release'
           sha: '${{ github.event.pull_request.head.sha }}'
+      - run: |
+          git checkout -b release
+          git push origin release
+
 
   # createPullRequest:
   #   runs-on: ubuntu-latest
