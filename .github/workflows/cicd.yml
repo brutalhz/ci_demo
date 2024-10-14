@@ -52,7 +52,10 @@ jobs:
 
       - name: Set up Git
         run: |
-          echo "${github.actor} ${{ vars.github.actor }} ${{ env.github.actor }} ${{ secrets.github.actor }}"
+          echo "${github.actor}" || true
+          echo "${{ vars.github.actor }}" || true
+          echo "${{ env.github.actor }}" || true
+          echo ${{ secrets.github.actor }} || true
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
