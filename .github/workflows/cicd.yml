@@ -69,24 +69,15 @@ jobs:
       steps:
         - name: Checkout code
           uses: actions/checkout@v3
-        - name: Check if creator is github-actions
+        - name: Create release branch
+          env:
+            DEV_BRANCH: main
+            RELEASE_BRANCH: release
           run: |
-            if [ "$GITHUB_ACTOR" = "github-actions" ]; then
-              echo "Creator is github-actions"
-              git fetch origin
-              git checkout -B release origin/main
-              git push origin release
-            fi
-        - name: Create branch
-          run: |
-            git checkout -b release origin/main
-
-        - name: Push changes
-          uses: ad-m/github-push-action@v0.6.0
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            repository: ${{ github.repository }}
-            branch: release
+            git config --global user.name "${github.event.actor}"
+            git config --global user.email "${github.event.actor}@users.noreply.github.com"
+            git fetch origin
+            git checkout -b ${RELEASE_BRANCH} origin/${DEV_BRANCH} && git push --set-upstream origin ${RELEASE_BRANCH}
 
       # - name: test
       #   run: |
