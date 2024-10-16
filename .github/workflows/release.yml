@@ -5,15 +5,10 @@ on:
   push:
     branches: [ release ]
   workflow_dispatch:
-     inputs:
-      branch:
-        description: 'Select the branch to run the workflow'
-        required: true
-        default: 'release'
-        type: choice
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     permissions:
       contents: write
