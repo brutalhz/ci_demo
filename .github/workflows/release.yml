@@ -5,10 +5,12 @@ on:
   push:
     branches: [ release ]
   workflow_dispatch:
+    inputs:
+      required: false
+      default: release
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/release'
     runs-on: ubuntu-latest
     permissions:
       contents: write
