@@ -6,8 +6,9 @@ on:
     branches: [ release ]
   workflow_dispatch:
     inputs:
-      required: false
-      default: 'release'
+      branch:
+        required: false
+        default: 'release'
 
 jobs:
   build:
