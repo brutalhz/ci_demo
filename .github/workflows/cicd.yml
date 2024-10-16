@@ -57,9 +57,9 @@ jobs:
 
       - name: Create new branch
         run: |
-         git fetch origin
-         git checkout -b release dev
-         git commit --allow-empty -m "Create empty commit"
+         git fetch origin && \
+         git checkout -b release origin/dev && \
+         git commit --allow-empty -m "Create empty commit" && \
          git push --set-upstream origin release
 
       # - name: test
