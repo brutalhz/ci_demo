@@ -61,6 +61,8 @@ jobs:
          git checkout -b release origin/main
          git commit --allow-empty -m "Create empty commit"
          git push --set-upstream origin release
+         git commit --allow-empty -m "Create empty commit"
+         git push --set-upstream origin release
 
   create-release-commit:
     needs: [create-release-branch]
@@ -74,7 +76,6 @@ jobs:
 
       - name: Create new commit
         run: |
-         git fetch origin
          git checkout origin/release
          git commit --allow-empty -m "Create empty commit"
          git push --set-upstream origin release
