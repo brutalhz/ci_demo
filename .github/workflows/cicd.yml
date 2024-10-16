@@ -81,6 +81,13 @@ jobs:
           run: |
             git checkout -b release origin/main
 
+        - name: Push changes
+          uses: ad-m/github-push-action@v0.6.0
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            repository: ${{ github.repository }}
+            branch: release
+
       # - name: test
       #   run: |
       #     curl \
