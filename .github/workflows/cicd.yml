@@ -62,14 +62,10 @@ jobs:
 
       - name: Create new branch
         run: |
-          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-           -H "Accept: application/vnd.github.v3+json" \
-           -d '{"ref":"refs/heads/release", "sha":"${{ env.COMMIT_SHA }}"}' https://api.github.com/repos/brutalhz/ci_demo/git/refs
-
-      - name: commit
-        run: |
-          git commit --allow-empty -m "Create empty commit"
-          git push --set-upstream origin release
+         git fetch origin
+         git checkout -b dev origin/release
+         git commit --allow-empty -m "Create empty commit"
+         git push --set-upstream origin ${RELEASE_BRANCH}
 
       # - name: test
       #   run: |
