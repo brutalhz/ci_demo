@@ -77,8 +77,8 @@ jobs:
           run: |
             echo "${GITHUB_ACTOR}"
             curl -X POST \
-              https://api.github.com/repos/${GITHUB_REPOSITORY}/git/refs \
-              -H 'Authorization: Bearer ${GIT_TOKEN}' \
+              https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs \
+              -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
               -H 'Content-Type: application/json' \
               -d '{"ref":"refs/heads/${RELEASE_BRANCH}","sha":"${GITHUB_SHA}"}'
 
