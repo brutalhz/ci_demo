@@ -44,41 +44,42 @@ jobs:
              echo "IMAGE_ID=${branch}-${GITHUB_SHA::8}-${ts}" >> $GITHUB_ENV
            fi
 
-  create-release-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  # create-release-branch:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Set up Git
-        run: |
-          git config --global user.name "GitHub Action"
-          git config --global user.email "action@github.com"
+  #     - name: Set up Git
+  #       run: |
+  #         git config --global user.name "GitHub Action"
+  #         git config --global user.email "action@github.com"
 
-      - name: Create new branch
-        run: |
-         git fetch origin
-         git checkout -b release origin/main
-         git commit --allow-empty -m "Create empty commit"
-         git push --set-upstream origin release
-         git commit --allow-empty -m "Create empty commit"
-         git push --set-upstream origin release
+  #     - name: Create new branch
+  #       run: |
+  #        git fetch origin
+  #        git checkout -b release origin/main
+  #        git commit --allow-empty -m "Create empty commit"
+  #        git push --set-upstream origin release
+  #        git commit --allow-empty -m "Create empty commit"
+  #        git push --set-upstream origin release
 
-  create-release-commit:
-    needs: [create-release-branch]
-    runs-on: ubuntu-latest
-    environment: 
-      name: Development
-      url: 'http://dev.myapp.com'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Create new commit
-        run: |
-         git checkout origin/release
-         git commit --allow-empty -m "Create empty commit"
-         git push --set-upstream origin release
+  create-branch:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+        - name: Check if creator is github-actions
+          run: |
+            if [ "$GITHUB_ACTOR" = "github-actions" ]; then
+              echo "Creator is github-actions"
+              git fetch origin
+              git checkout -B release origin/main
+              git push origin release
+            fi
+        - name: Create branch
+          run: |
+            git checkout -b release origin/main
 
       # - name: test
       #   run: |
