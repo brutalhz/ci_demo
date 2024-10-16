@@ -66,6 +66,11 @@ jobs:
            -H "Accept: application/vnd.github.v3+json" \
            -d '{"ref":"refs/heads/release", "sha":"${{ env.COMMIT_SHA }}"}' https://api.github.com/repos/brutalhz/ci_demo/git/refs
 
+      - name: commit
+        run: |
+          git commit --allow-empty -m "Create empty commit"
+          git git push --set-upstream origin release
+
       # - name: test
       #   run: |
       #     curl \
