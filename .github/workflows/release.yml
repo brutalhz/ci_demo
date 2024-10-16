@@ -5,6 +5,11 @@ on:
   push:
     branches: [ release ]
   workflow_dispatch:
+     inputs:
+      branch:
+        description: 'Select the branch to run the workflow'
+        required: true
+        default: 'release'
 
 jobs:
   build:
