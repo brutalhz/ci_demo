@@ -80,7 +80,7 @@ jobs:
               https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs \
               -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
               -H "Accept: application/vnd.github+json" \
-              -d '{"ref":"refs/heads/${RELEASE_BRANCH}","sha":"${GITHUB_SHA}"}'
+              -d '{"ref":"refs/heads/${env.RELEASE_BRANCH}","sha":"${env.GITHUB_SHA}"}'
 
       # - name: test
       #   run: |
