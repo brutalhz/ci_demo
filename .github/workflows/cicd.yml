@@ -81,6 +81,19 @@ jobs:
               -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
               -H "Accept: application/vnd.github+json" \
               -d '{"ref":"refs/heads/${{ env.RELEASE_BRANCH }}","sha":"${{ github.sha }}"}'
+        - name: update reference
+          env:
+            DEV_BRANCH: main
+            RELEASE_BRANCH: release
+            GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            curl -L \
+             -X PATCH \
+             -H "Accept: application/vnd.github+json" \
+             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+             https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs/REF \
+             -d '{"sha":"aa218f56b14c9653891f9e74264a383fa43fefbd","force":true}'
+            
 
       # - name: test
       #   run: |
