@@ -78,7 +78,7 @@ jobs:
             git config --global user.name "${GITHUB_ACTOR}"
             git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
             git fetch origin
-            git checkout -b ${RELEASE_BRANCH} origin/${DEV_BRANCH} && git push --set-upstream origin ${RELEASE_BRANCH}
+            git checkout -b ${RELEASE_BRANCH} origin/${DEV_BRANCH} && git push --set-upstream origin ${RELEASE_BRANCH} --repo-token ${{ secrets.GITHUB_TOKEN }}
 
       # - name: test
       #   run: |
