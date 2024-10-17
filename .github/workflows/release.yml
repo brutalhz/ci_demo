@@ -10,6 +10,8 @@ on:
         required: false
         default: 'release'
 
+permissions: write-all
+
 jobs:
   build:
     runs-on: ubuntu-latest
