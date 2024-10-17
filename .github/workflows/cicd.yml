@@ -1,132 +1,41 @@
-name: CI + CD
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: 
+  workflow_dispatch:
+    inputs:
+      dev_branch:
+        description: The source branch to create the dev branch from.
+        required: false
+        default: 'main'
+      release_branch:
+        description: The name of the release branch to create.
+        required: true
+        default: 'release'
 
 jobs:
-  Build:
+  CreateBranchNew:
+    name: Create Branch
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Compile
-        run: echo Hello, world!
-    
-  DeployDev:
-    name: Deploy to Dev 
-    if: github.event.ref == 'refs/heads/main' 
-    needs: [Build]
-    runs-on: ubuntu-latest
-    environment: 
-      name: Development
-      url: 'http://dev.myapp.com'
-    outputs:
-      IMAGE_TAG: ${{ steps.check-tag.outputs.IMAGE_ID }}
-    steps:
-      - name: Deploy
-        run: echo I am deploying!
-
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Check Tag
-        id: check-tag
-        run: |
-           if [[ ${{ github.event.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-               echo "::set-output name=IMAGE_ID::${{ github.ref_name }}"
-           else
-             ts=$(date +%Y%m%d-%H.%M | awk -F- '{print $1 "-" sprintf("%02d", ($2 + 3) % 24) "." substr($2, 4)}')
-             branch=dev
-             echo "::set-output name=IMAGE_ID::${branch}-${GITHUB_SHA::8}-${ts}"
-             echo "IMAGE_ID=${branch}-${GITHUB_SHA::8}-${ts}" >> $GITHUB_ENV
-           fi
-
-  # create-release-branch:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-
-  #     - name: Set up Git
-  #       run: |
-  #         git config --global user.name "GitHub Action"
-  #         git config --global user.email "action@github.com"
-
-  #     - name: Create new branch
-  #       run: |
-  #        git fetch origin
-  #        git checkout -b release origin/main
-  #        git commit --allow-empty -m "Create empty commit"
-  #        git push --set-upstream origin release
-  #        git commit --allow-empty -m "Create empty commit"
-  #        git push --set-upstream origin release
-
-  # create-branch:
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - name: Checkout code
-  #         uses: actions/checkout@v3
-  #       - name: Create release branch
-  #         env:
-  #           DEV_BRANCH: main
-  #           RELEASE_BRANCH: release
-  #           GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         run: |
-  #           echo "${GITHUB_ACTOR}"
-  #           curl -X POST \
-  #             https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs \
-  #             -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-  #             -H "Accept: application/vnd.github+json" \
-  #             -d '{"ref":"refs/heads/${{ env.RELEASE_BRANCH }}","sha":"${{ github.sha }}"}'
-  #       - name: update reference
-  #         env:
-  #           DEV_BRANCH: main
-  #           RELEASE_BRANCH: release
-  #           GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         run: |
-  #           curl -L \
-  #            -X PATCH \
-  #            -H "Accept: application/vnd.github+json" \
-  #            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-  #            https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs/heads/${{ env.RELEASE_BRANCH }} \
-  #            -d '{"sha":"aa218f56b14c9653891f9e74264a383fa43fefbd","force":true}'
-  create_branch:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 0
-      - name: Create Pull Request Branch
-        run: |
-          git config --global user.email "brutalhz@users.noreply.github.com"
-          git config --global user.name "brutalhz"
-          git checkout -b release
-          echo "New branch created successfully!"
-      - name: Commit changes
-        run: |
-          git commit --allow-empty -m "Automated branch creation"
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: release
-      - name: run
+#       - name: Create release branch
+#         env:
+#           DEV_BRANCH: ${{ github.event.inputs.dev_branch }}
+#           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
+#         run: |
+#           git fetch origin
+#           git checkout -b ${RELEASE_BRANCH} origin/${DEV_BRANCH} && git push --set-upstream origin ${RELEASE_BRANCH}
+          
+      - name: Create release branch
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEV_BRANCH: ${{ github.event.inputs.dev_branch }}
+          RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
+          GIT_TOKEN: ${{ secrets.ACTION_KEY }}
         run: |
-          gh workflow run ".github/workflows/release.yml --ref release"
-
-            
-
-      # - name: test
-      #   run: |
-      #     curl \
-      #     -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-      #     -H "Accept: application/vnd.github.v3+json" \
-      #      https://api.github.com/repos/brutalhz/ci_demo/actions/workflows/release.yml/dispatches \
-      #     -d '{"ref":"release"}'
-
+          echo "${GITHUB_ACTOR}"
+          curl -X POST \
+            ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs \
+            -H 'Authorization: Bearer ${{ env.GIT_TOKEN }}' \
+            -H "Accept: application/vnd.github+json" \
+            -d '{"ref":"refs/heads/${{ env.RELEASE_BRANCH }}","sha":"${{ github.sha }}"}'
