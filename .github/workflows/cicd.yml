@@ -1,42 +1,72 @@
 name: Create release branch
 on: 
   workflow_dispatch:
-    inputs:
-      dev_branch:
-        description: The source branch to create the dev branch from.
-        required: false
-        default: 'main'
-      release_branch:
-        description: The name of the release branch to create.
-        required: true
-        default: 'release'
+    # inputs:
+    #   dev_branch:
+    #     description: The source branch to create the dev branch from.
+    #     required: false
+    #     default: 'main'
+    #   release_branch:
+    #     description: The name of the release branch to create.
+    #     required: true
+    #     default: 'release'
 
 jobs:
-  CreateBranchNew:
-    name: Create Branch
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+#   CreateBranchNew:
+#     name: Create Branch
+#     runs-on: ubuntu-latest
+#     permissions: write-all
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
 
+# #       - name: Create release branch
+# #         env:
+# #           DEV_BRANCH: ${{ github.event.inputs.dev_branch }}
+# #           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
+# #         run: |
+# #           git fetch origin
+# #           git checkout -b ${RELEASE_BRANCH} origin/${DEV_BRANCH} && git push --set-upstream origin ${RELEASE_BRANCH}
+          
 #       - name: Create release branch
 #         env:
 #           DEV_BRANCH: ${{ github.event.inputs.dev_branch }}
 #           RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
+#           GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #         run: |
-#           git fetch origin
-#           git checkout -b ${RELEASE_BRANCH} origin/${DEV_BRANCH} && git push --set-upstream origin ${RELEASE_BRANCH}
-          
-      - name: Create release branch
+#           echo "${GITHUB_ACTOR}"
+#           curl -X POST \
+#             ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs \
+#             -H 'Authorization: Bearer ${{ env.GIT_TOKEN }}' \
+#             -H "Accept: application/vnd.github+json" \
+#             -d '{"ref":"refs/heads/${{ env.RELEASE_BRANCH }}","sha":"${{ github.sha }}"}'
+
+  CreateBranchNew:
+    name: Create Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+       
+      - name: Check Release Branch
+        shell: bash
         env:
-          DEV_BRANCH: ${{ github.event.inputs.dev_branch }}
-          RELEASE_BRANCH: ${{ github.event.inputs.release_branch }}
-          GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_BRANCH: release
+        id: release_branch_exists
         run: |
-          echo "${GITHUB_ACTOR}"
-          curl -X POST \
-            ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/git/refs \
-            -H 'Authorization: Bearer ${{ env.GIT_TOKEN }}' \
-            -H "Accept: application/vnd.github+json" \
-            -d '{"ref":"refs/heads/${{ env.RELEASE_BRANCH }}","sha":"${{ github.sha }}"}'
+          if git branch -r | grep -q $RELEASE_BRANCH; then
+            echo "::error::Release branch '$RELEASE_BRANCH' already exists."
+            exit 1
+          else
+            echo "SUCCESS. Branch does not exist yet!"
+            exit 0
+          fi
+
+      - name: Create release branch
+        if: ${{ steps.release_branch_exists.conclusion == 'success' }}
+        run: |
+          git checkout -b release main
+          git push --set-upstream origin release
