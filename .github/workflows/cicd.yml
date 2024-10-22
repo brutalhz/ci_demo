@@ -106,7 +106,7 @@ jobs:
           BASE64_HEADER=$(echo -n "$HEADER" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           BASE64_PAYLOAD=$(echo -n "$PAYLOAD" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
-          SIGNATURE=$(echo -n "${BASE64_HEADER}.${BASE64_PAYLOAD}" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
+          SIGNATURE=$(echo -n ".${BASE64_HEADER}.${BASE64_PAYLOAD}" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
           echo $SIGNATURE
           JWT="${BASE64_HEADER}.${BASE64_PAYLOAD}.${SIGNATURE}"
