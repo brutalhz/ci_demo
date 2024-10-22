@@ -41,49 +41,49 @@ jobs:
 #             -H "Accept: application/vnd.github+json" \
 #             -d '{"ref":"refs/heads/${{ env.RELEASE_BRANCH }}","sha":"${{ github.sha }}"}'
 
-  # CreateBranchNew:
-  #   name: Create Branch
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+  CreateBranchNew:
+    name: Create Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
        
-  #     - name: Check Release Branch
-  #       shell: bash
-  #       env:
-  #         RELEASE_BRANCH: release
-  #       id: release_branch_exists
-  #       run: |
-  #         if git branch -r | grep -q $RELEASE_BRANCH; then
-  #           echo "::error::Release branch '$RELEASE_BRANCH' already exists."
-  #           exit 1
-  #         else
-  #           echo "SUCCESS. Branch does not exist yet!"
-  #           exit 0
-  #         fi
+      - name: Check Release Branch
+        shell: bash
+        env:
+          RELEASE_BRANCH: release
+        id: release_branch_exists
+        run: |
+          if git branch -r | grep -q $RELEASE_BRANCH; then
+            echo "::error::Release branch '$RELEASE_BRANCH' already exists."
+            exit 1
+          else
+            echo "SUCCESS. Branch does not exist yet!"
+            exit 0
+          fi
 
-  #     - name: Create release branch
-  #       if: ${{ steps.release_branch_exists.conclusion == 'success' }}
-  #       run: |
-  #         git checkout -b release main
-  #         git push --set-upstream origin release
+      - name: Create release branch
+        if: ${{ steps.release_branch_exists.conclusion == 'success' }}
+        run: |
+          git checkout -b release main
+          git push --set-upstream origin release
 
-  #     - name: Run workflow Chronos CI release
-  #       run: |
-  #         curl \
-  #         -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-  #         -H "Accept: application/vnd.github.v3+json" \
-  #          ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/release.yml/dispatches \
-  #         -d '{"ref":"release"}'
+      - name: Run workflow Chronos CI release
+        run: |
+          curl \
+          -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+           ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/release.yml/dispatches \
+          -d '{"ref":"release"}'
 
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Generate JWT
         id: jwt
@@ -114,9 +114,14 @@ jobs:
           TOKEN=${{ env.JWT }}
           
           # Пример вызова API GitHub от имени вашего приложения
-          curl -H "Authorization: Bearer $TOKEN" 
-               -H "Accept: application/vnd.github.v3+json" 
-               https://api.github.com/app/installations
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout release
+          curl -X POST \
+            https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
+            -H 'Authorization: Bearer $TOKEN' \
+            -H 'Content-Type: application/json' \
+            -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
 
   # create-pr:
   #     runs-on: ubuntu-latest
@@ -128,13 +133,13 @@ jobs:
   #         fetch-depth: 0
   #     - name: Create PR
   #       run: |
-  #         git config --global user.name "github-actions"
-  #         git config --global user.email "github-actions@github.com"
-  #         git checkout release
-  #         curl -X POST \
-  #           https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
-  #           -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-  #           -H 'Content-Type: application/json' \
-  #           -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
+          # git config --global user.name "github-actions"
+          # git config --global user.email "github-actions@github.com"
+          # git checkout release
+          # curl -X POST \
+          #   https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
+          #   -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          #   -H 'Content-Type: application/json' \
+          #   -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
 
     
