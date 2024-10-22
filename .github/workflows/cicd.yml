@@ -70,3 +70,21 @@ jobs:
         run: |
           git checkout -b release main
           git push --set-upstream origin release
+
+  create-pr:
+      runs-on: ubuntu-latest
+      needs: CreateBranchNew
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create PR
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout release
+          curl -X POST \
+            https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
+            -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            -H 'Content-Type: application/json' \
+            -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"main","maintainer_can_modify":true,"auto_merge":true}'
