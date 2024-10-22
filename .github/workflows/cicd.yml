@@ -109,7 +109,9 @@ jobs:
           SIGNATURE=$(echo -n "$BASE64_HEADER.$BASE64_PAYLOAD" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
           JWT="$BASE64_HEADER.$BASE64_PAYLOAD.$SIGNATURE"
+          echo "JWT=${JWT}"
           echo "JWT=${JWT}" >> $GITHUB_ENV
+          echo "::set-output name=jwt::$JWT"
 
       - name: Clean up
         run: |
@@ -117,6 +119,8 @@ jobs:
 
       - name: Use GitHub App Token
         run: |
+          echo "${{ steps.jwt.outputs.jwt }}"
+          echo "${{ env.JWT }}"
           TOKEN=${{ env.JWT }}
           
           # Пример вызова API GitHub от имени вашего приложения
