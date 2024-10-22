@@ -87,43 +87,24 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
       - name: Generate JWT
         id: jwt
         run: |
-          APP_ID=${{ secrets.APP_ID }}
-          PRIVATE_KEY="${{ secrets.PRIVATE_KEY }}"
-          
-          # Сохраняем приватный ключ во временный файл
-          echo "$PRIVATE_KEY" > private_key.pem
-          
-          NOW=$(date +%s)
-          EXP=$(($NOW + 600)) # Токен действителен 10 минут
-          
-          HEADER='{"alg":"HS256","typ":"JWT"}'
-          PAYLOAD="{"iat":$NOW,"exp":$EXP,"iss":"$APP_ID"}"
-          
-          BASE64_HEADER=$(echo -n "$HEADER" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
-          BASE64_PAYLOAD=$(echo -n "$PAYLOAD" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
-          
-          SIGNATURE=$(echo -n ".${BASE64_HEADER}.${BASE64_PAYLOAD}" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
-          
-          echo $SIGNATURE
-          JWT="${BASE64_HEADER}.${BASE64_PAYLOAD}.${SIGNATURE}"
-          echo "JWT=${JWT}"
-          echo "JWT=${JWT}" >> $GITHUB_ENV
-          echo "::set-output name=jwt::$JWT"
-
-      - name: Clean up
-        run: |
-          rm private_key.pem
-
-      - name: Use GitHub App Token
-        run: |
-          echo "${{ steps.jwt.outputs.jwt }}"
-          echo "${{ env.JWT }}"
-          TOKEN=${{ env.JWT }}
-          
+          npm install jsonwebtoken
+          node -e "
+            const fs = require('fs');
+            const jwt = require('jsonwebtoken');
+            const APP_ID = '${{ secrets.APP_ID }}';
+            const PRIVATE_KEY = '${{ secrets.PRIVATE_KEY.replace(/\n/g, '\n' }}';
+            const payload = {
+              iat: Math.floor(Date.now() / 1000) - 60,
+              exp: Math.floor(Date.now() / 1000) + (10 * 60),
+              iss: APP_ID,
+            };
+            const token = jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256' });
+            console.log(token);
+          " > token.txt
+          TOKEN=$(cat token.txt)
           # Пример вызова API GitHub от имени вашего приложения
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
