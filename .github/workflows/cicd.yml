@@ -89,4 +89,4 @@ jobs:
             https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
             -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
             -H 'Content-Type: application/json' \
-            -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true}'
+            -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
