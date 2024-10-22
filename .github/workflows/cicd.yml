@@ -94,10 +94,9 @@ jobs:
           APP_ID=${{ secrets.APP_ID }}
           PRIVATE_KEY="${{ secrets.PRIVATE_KEY }}"
           
-          # Заменяем символы переноса строки на нужный формат
-          PRIVATE_KEY=$(echo "$PRIVATE_KEY" | tr -d 'r' | awk '{printf "%s\n", $0}')
+          # Сохраняем приватный ключ во временный файл
+          echo "$PRIVATE_KEY" > private_key.pem
           
-          # Генерируем токен
           NOW=$(date +%s)
           EXP=$(($NOW + 600)) # Токен действителен 10 минут
           
@@ -107,10 +106,14 @@ jobs:
           BASE64_HEADER=$(echo -n "$HEADER" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           BASE64_PAYLOAD=$(echo -n "$PAYLOAD" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
-          SIGNATURE=$(echo -n "$BASE64_HEADER.$BASE64_PAYLOAD" | openssl dgst -sha256 -sign <(echo "$PRIVATE_KEY") | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
+          SIGNATURE=$(echo -n "$BASE64_HEADER.$BASE64_PAYLOAD" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
           JWT="$BASE64_HEADER.$BASE64_PAYLOAD.$SIGNATURE"
           echo "JWT=${JWT}" >> $GITHUB_ENV
+
+      - name: Clean up
+        run: |
+          rm private_key.pem
 
       - name: Use GitHub App Token
         run: |
