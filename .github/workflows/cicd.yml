@@ -100,15 +100,16 @@ jobs:
           NOW=$(date +%s)
           EXP=$(($NOW + 600)) # Токен действителен 10 минут
           
-          HEADER='{"alg":"RS256","typ":"JWT"}'
+          HEADER='{"alg":"HS256","typ":"JWT"}'
           PAYLOAD="{"iat":$NOW,"exp":$EXP,"iss":"$APP_ID"}"
           
           BASE64_HEADER=$(echo -n "$HEADER" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           BASE64_PAYLOAD=$(echo -n "$PAYLOAD" | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
-          SIGNATURE=$(echo -n "$BASE64_HEADER.$BASE64_PAYLOAD" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
+          SIGNATURE=$(echo -n "${BASE64_HEADER}.${BASE64_PAYLOAD}" | openssl dgst -sha256 -sign private_key.pem | openssl base64 | tr -d '=' | tr '/+' '_-' | tr -d 'n')
           
-          JWT="$BASE64_HEADER.$BASE64_PAYLOAD.$SIGNATURE"
+          echo $SIGNATURE
+          JWT="${BASE64_HEADER}.${BASE64_PAYLOAD}.${SIGNATURE}"
           echo "JWT=${JWT}"
           echo "JWT=${JWT}" >> $GITHUB_ENV
           echo "::set-output name=jwt::$JWT"
