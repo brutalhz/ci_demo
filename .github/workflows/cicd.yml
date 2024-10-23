@@ -80,23 +80,50 @@ jobs:
            ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/release.yml/dispatches \
           -d '{"ref":"release"}'
 
-  create-pr:
-      runs-on: ubuntu-latest
-      needs: CreateBranchNew
-      steps:
+  build:
+    runs-on: ubuntu-latest
+    needs: CreateBranchNew
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Create PR
+          
+      - name: Generate JWT and token
+        id: get-token
+        uses: navikt/github-app-token-generator@v1
+        with:
+          app-id: '1033295'
+          private-key: ${{ secrets.PRIVATE_KEY }}
+  
+      - name: pr
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git checkout release
           curl -X POST \
             https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
-            -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+            -H 'Authorization: Bearer ${{ steps.get-token.outputs.token }}' \
             -H 'Content-Type: application/json' \
             -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
+
+  # create-pr:
+  #     runs-on: ubuntu-latest
+  #     needs: CreateBranchNew
+  #     steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Create PR
+  #       run: |
+          # git config --global user.name "github-actions"
+          # git config --global user.email "github-actions@github.com"
+          # git checkout release
+          # curl -X POST \
+          #   https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
+          #   -H 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          #   -H 'Content-Type: application/json' \
+          #   -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
 
     
