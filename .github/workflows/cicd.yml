@@ -98,7 +98,6 @@ jobs:
 
       - name: pr
         run: |
-          token: ${{ steps.get-token.outputs.token }}
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git checkout release
