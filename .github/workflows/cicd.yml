@@ -87,31 +87,24 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Generate JWT
-        id: jwt
-        run: |
-          npm install jsonwebtoken
-          node -e "
-            const fs = require('fs');
-            const jwt = require('jsonwebtoken');
-            const APP_ID = '${{ secrets.APP_ID }}';
-            const PRIVATE_KEY = '${{ secrets.PRIVATE_KEY }}';
-            const payload = {
-              iat: Math.floor(Date.now() / 1000) - 60,
-              exp: Math.floor(Date.now() / 1000) + (10 * 60),
-              iss: APP_ID,
-            };
-            const token = jwt.sign(payload, PRIVATE_KEY, { algorithm: 'RS256' });
-            console.log(token);
-          " > token.txt
-          TOKEN=$(cat token.txt)
+          
+      - name: Generate JWT and token
+        id: generate-github-app-tokens
+        uses: jamestrousdale/github-app-jwt-token@1.1.1
+        with:
+          app-id: '{{ secrets.APP_ID }}'
+          private-key: ${{ secrets.PRIVATE_KEY }}
           # Пример вызова API GitHub от имени вашего приложения
+
+      - name: pr
+        run: |
+          token: ${{ steps.get-token.outputs.token }}
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git checkout release
           curl -X POST \
             https://api.github.com/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/pulls \
-            -H 'Authorization: Bearer $TOKEN' \
+            -H 'Authorization: Bearer ${{ steps.get-token.outputs.token }}' \
             -H 'Content-Type: application/json' \
             -d '{"title":"Automerge release into master","body":"Automerge release into master","head":"release","base":"example-patches","maintainer_can_modify":true,"auto_merge":true,"delete_branch":true}'
 
