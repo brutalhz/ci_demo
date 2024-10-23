@@ -90,7 +90,7 @@ jobs:
           
       - name: Generate JWT and token
         id: generate-github-app-tokens
-        uses: jamestrousdale/github-app-jwt-token@1.1.1
+        uses: navikt/github-app-token-generator@v1
         with:
           app-id: '{{ secrets.APP_ID }}'
           private-key: ${{ secrets.PRIVATE_KEY }}
