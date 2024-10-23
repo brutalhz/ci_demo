@@ -79,21 +79,31 @@ jobs:
            ${{ github.api_url }}/repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/workflows/release.yml/dispatches \
           -d '{"ref":"release"}'
 
-  build:
-    runs-on: ubuntu-latest
-    needs: CreateBranchNew
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          
-      - name: Generate JWT and token
-        id: get-token
-        uses: navikt/github-app-token-generator@v1
-        with:
-          app-id: '1033295'
-          private-key: ${{ secrets.PRIVATE_KEY }}
+      - name: Generate jmx token
+        id: jmx_token
+        shell: bash
+        run: |
+          $app_id = ${{ secrets.APP_ID }}
+
+          $private_key_path = ${{ secrets.PRIVATE_KEY }}
+
+          $header = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject @{
+            alg = "RS256"
+            typ = "JWT"
+          }))).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+          $payload = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes((ConvertTo-Json -InputObject @{
+            iat = [System.DateTimeOffset]::UtcNow.AddSeconds(-10).ToUnixTimeSeconds()
+            exp = [System.DateTimeOffset]::UtcNow.AddMinutes(10).ToUnixTimeSeconds()
+              iss = $app_id
+          }))).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+          $rsa = [System.Security.Cryptography.RSA]::Create()
+          $rsa.ImportFromPem((Get-Content $private_key_path -Raw))
+
+          $signature = [Convert]::ToBase64String($rsa.SignData([System.Text.Encoding]::UTF8.GetBytes("$header.$payload"), [System.Security.Cryptography.HashAlgorithmName]::SHA256, [System.Security.Cryptography.RSASignaturePadding]::Pkcs1)).TrimEnd('=').Replace('+', '-').Replace('/', '_')
+          $jwt = "$header.$payload.$signature"
+          echo "::set-output name=TOKEN::${jwt}
   
       - name: pr
         run: |
