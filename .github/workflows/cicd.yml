@@ -85,8 +85,8 @@ jobs:
         run: |
           set -o pipefail
 
-          app_id=${{ env.APP_ID }}
-          echo ${{ env.PRIVATE_KEY }} > key.pem
+          app_id=${{ vars.APP_ID }}
+          echo ${{ vars.PRIVATE_KEY }} > key.pem
           pem=$( cat key.pem ) # file path of the private key as second argument
 
           now=$(date +%s)
