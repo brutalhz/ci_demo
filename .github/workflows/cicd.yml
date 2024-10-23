@@ -89,13 +89,12 @@ jobs:
           fetch-depth: 0
           
       - name: Generate JWT and token
-        id: generate-github-app-tokens
+        id: get-token
         uses: navikt/github-app-token-generator@v1
         with:
           app-id: '1033295'
           private-key: ${{ secrets.PRIVATE_KEY }}
-          # Пример вызова API GitHub от имени вашего приложения
-
+  
       - name: pr
         run: |
           git config --global user.name "github-actions"
