@@ -86,7 +86,7 @@ jobs:
           set -o pipefail
 
           app_id=${{ vars.APP_ID }}
-          pem=$( "${{ vars.PRIVATE_KEY }}" ) # file path of the private key as second argument
+          pem=$( echo "${{ vars.PRIVATE_KEY }}" ) # file path of the private key as second argument
 
           now=$(date +%s)
           iat=$((${now} - 60)) # Issues 60 seconds in the past
