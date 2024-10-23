@@ -118,7 +118,7 @@ jobs:
 
           # Create JWT
           JWT="${header_payload}"."${signature}"
-          echo "JWT: ${JWT}"
+          echo "JWT: '${JWT}'"
           echo "::set-output name=TOKEN::${JWT}
   
       - name: pr
