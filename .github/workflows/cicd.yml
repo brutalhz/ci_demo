@@ -92,7 +92,7 @@ jobs:
         id: generate-github-app-tokens
         uses: navikt/github-app-token-generator@v1
         with:
-          app-id: '{{ secrets.APP_ID }}'
+          app-id: '1033295'
           private-key: ${{ secrets.PRIVATE_KEY }}
           # Пример вызова API GitHub от имени вашего приложения
 
