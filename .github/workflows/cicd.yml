@@ -1,4 +1,5 @@
 name: Create release branch
+  
 on: 
   workflow_dispatch:
     # inputs:
@@ -11,6 +12,9 @@ on:
     #     required: true
     #     default: 'release'
 
+env:
+  QA_DOCKER_REGISTRY_NAME: docker-qa-local
+  PROD_DOCKER_REGISTRY_NAME: docker-prod-local
 jobs:
 #   CreateBranchNew:
 #     name: Create Branch
@@ -44,13 +48,26 @@ jobs:
   CreateBranchNew:
     name: Create Branch
     runs-on: ubuntu-latest
+    env:
+          REPOSITORIES: |
+            ${{ env.QA_DOCKER_REGISTRY_NAME }}
+            ${{ env.PROD_DOCKER_REGISTRY_NAME }}
+            chronos-messaging-server
+            chronos-python-server
+            chronos-worker
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-       
+
+      - name: test
+        run: |
+          for repo in ${REPOSITORIES}; do
+            echo $repo
+          done
+      
       - name: Check Release Branch
         shell: bash
         env:
