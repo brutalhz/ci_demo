@@ -49,12 +49,7 @@ jobs:
     name: Create Branch
     runs-on: ubuntu-latest
     env:
-          REPOSITORIES: |
-            ${{ env.QA_DOCKER_REGISTRY_NAME }}
-            ${{ env.PROD_DOCKER_REGISTRY_NAME }}
-            chronos-messaging-server
-            chronos-python-server
-            chronos-worker
+      REPOSITORIES: ${{ env.QA_DOCKER_REGISTRY_NAME }},${{ env.PROD_DOCKER_REGISTRY_NAME }},chronos-python-server,chronos-worker"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -64,7 +59,7 @@ jobs:
 
       - name: test
         run: |
-          for repo in ${REPOSITORIES}; do
+          for repo in ${REPOSITORIES//,/ }; do
             echo $repo
           done
       
