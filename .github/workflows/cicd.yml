@@ -56,7 +56,7 @@ jobs:
         shell: bash
         run: |
           for i in a b c; do
-            echo $c
+            echo $i
           done
            
 
