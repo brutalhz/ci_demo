@@ -52,6 +52,14 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: test
+        shell: bash
+        run: |
+          for i in a b c; do
+            echo $c
+          done
+           
+
       - name: Check Release Branch
         shell: bash
         env:
