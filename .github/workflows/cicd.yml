@@ -44,6 +44,12 @@ jobs:
 
   CreateBranchNew:
     name: Create Branch
+    env:
+      REPOSITORIES: |
+        chronos-client
+        chronos-messaging-server
+        chronos-python-server
+        chronos-worker
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -51,6 +57,13 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: tester
+        shell: bash
+        run: |
+          for repo in $ ${REPOSITORIES}; do
+            echo $repo
+          done
       
       - name: Check Release Branch
         shell: bash
